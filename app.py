@@ -9,14 +9,20 @@ car_data = pd.read_csv("vehicles_us.csv")
 
 
 def state_hist():
+    """Modifica el estado a true
+    """
     st.session_state.show_hist = True
 
 
 def state_scatter():
+    """Modifica el estado a true
+    """
     st.session_state.show_scatter = True
 
 
 def state_model_hist():
+    """Modifica el estado a true
+    """
     st.session_state.show_model = True
 
 
