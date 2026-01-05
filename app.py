@@ -59,3 +59,21 @@ if st.session_state.show_model:
     st.write("Creando histograma por año del modelo")
     model_hist = px.histogram(car_data, x="model_year")
     st.plotly_chart(model_hist, use_container_width=True)
+
+# Relacion entre tipo, precio y modelo
+t_p = car_data.groupby(['type', 'model_year'])['price'].mean().reset_index()
+
+fig2 = px.scatter(t_p, x='model_year', y='price', color='type', title='Precio promedio por modelo y año de saldia',
+                  labels={'model_year': "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+st.plotly_chart(fig2, use_container_width=True)
+
+# Grafica con las condiciones de los carros
+condition_chart = car_data.groupby('condition')['fuel'].count(
+).reset_index()  # Obtener la cantidad carros de cada condicion
+condition_chart = condition_chart.rename(columns={'fuel': 'cuantity'})
+
+fig3 = px.pie(condition_chart, names="condition", values="cuantity", color_discrete_sequence=px.colors.qualitative.Set2,
+              title="Condiciones de los carros en la pagina.",
+              category_orders={"condition": ["excellent", "good", "like new", "fair", "new", "salvage"]})
+
+st.plotly_chart(fig3, use_container_width=True)
