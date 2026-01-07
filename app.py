@@ -40,24 +40,30 @@ if "show_model" not in st.session_state:
 st.header("Graficas sobre la venta de vehiculos y sus anuncios.")
 
 # Botones
-st.button("Construir histograma", on_click=state_hist)
-st.button("Construir grafico de dispersion", on_click=state_scatter)
-st.button("Crear histograma por año del modelo", on_click=state_model_hist)
+st.button("Construir histograma entre cantidad de anuncios-odometro",
+          on_click=state_hist)
+st.button("Construir grafico de dispersion entre el precio y odometro",
+          on_click=state_scatter)
+st.button("Crear histograma con respecto al año del modelo",
+          on_click=state_model_hist)
 
 # Creando histograma
 if st.session_state.show_hist:
     st.write(
         "Creacion de un histograma para el conjunto de anuncios de venta de coches")
-    hist = px.histogram(car_data, x="odometer")
+    hist = px.histogram(car_data, x="odometer",
+                        title='Cantidad de anuncios por odometro')
     st.plotly_chart(hist, width="stretch")
 if st.session_state.show_scatter:
     st.write("Creando grafico de dispersion")
-    scatter = px.scatter(car_data, x="odometer", y="price")
+    scatter = px.scatter(car_data, x="odometer", y="price", title='Grafica - Odometro',
+                         labels={'odometer': 'Odometro', 'price': 'Precio (USD)'})
     st.plotly_chart(scatter, width="stretch")
 
 if st.session_state.show_model:
     st.write("Creando histograma por año del modelo")
-    model_hist = px.histogram(car_data, x="model_year")
+    model_hist = px.histogram(car_data, x="model_year",
+                              labels={"model_year": "Año"})
     st.plotly_chart(model_hist, width="stretch")
 
 
@@ -89,10 +95,6 @@ fig4 = px.pie(group_days, title="Tipos de carros con mayores ventas", names='typ
 
 st.plotly_chart(fig4, width="stretch")
 
-# Relacion entre el año de salida y la velocidad de su venta
-years = days.groupby('model_year')['type'].count().reset_index()
-print(years)
-
 # Relacion entre tipo, precio y modelo
 t_p = car_data.groupby(['type', 'model_year'])['price'].mean().reset_index()
 
@@ -107,6 +109,28 @@ fig5 = px.scatter(less_10, x='model_year', y='price', color='type', title='Relac
 st.plotly_chart(fig5, width="stretch")
 
 # Relacion entre el precio-odometro y tipo de carro de los ultimos 15 años
-fig6 = px.scatter(less_10, x='odometer', y='price', color='type', title='Relacion entre el precio y tipo de carro (ultimos 15 años)', labels={
+fig6 = px.scatter(less_10, x='odometer', y='price', color='type', title='Relacion entre el precio y millas recorridas (ultimos 15 años)', labels={
                   "model_year": "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
 st.plotly_chart(fig6, width="stretch")
+
+# Comparacion de precios entre modelos
+st.title('Comparar precios entre modelos')
+model_1 = st.selectbox(
+    "Seleccione un modelo",
+    sorted(car_data['model'].unique()))
+
+model_2 = st.selectbox(
+    "Seleccione un modelo para comparar",
+    sorted(car_data['model'].unique())
+)
+normalize = st.checkbox("Normalizar el histograma", value=True)
+
+
+filtered_model = car_data[car_data['model'].isin([model_1, model_2])]
+
+histnorm = "percent" if normalize else None
+
+comp_model = px.histogram(filtered_model, x='price', color='model',
+                          opacity=0.6, title='Histograma entre modelos',
+                          histnorm=histnorm)
+st.plotly_chart(comp_model, width='stretch')
