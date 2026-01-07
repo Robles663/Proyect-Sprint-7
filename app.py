@@ -37,7 +37,7 @@ if "show_model" not in st.session_state:
     st.session_state.show_model = False
 
 # Titulo
-st.header("Graficas sobre la venta de vehiculos.")
+st.header("Graficas sobre la venta de vehiculos y sus anuncios.")
 
 # Botones
 st.button("Construir histograma", on_click=state_hist)
@@ -49,23 +49,19 @@ if st.session_state.show_hist:
     st.write(
         "Creacion de un histograma para el conjunto de anuncios de venta de coches")
     hist = px.histogram(car_data, x="odometer")
-    st.plotly_chart(hist, use_container_width=True)
+    st.plotly_chart(hist, width="stretch")
 if st.session_state.show_scatter:
     st.write("Creando grafico de dispersion")
     scatter = px.scatter(car_data, x="odometer", y="price")
-    st.plotly_chart(scatter, use_container_width=True)
+    st.plotly_chart(scatter, width="stretch")
 
 if st.session_state.show_model:
     st.write("Creando histograma por año del modelo")
     model_hist = px.histogram(car_data, x="model_year")
-    st.plotly_chart(model_hist, use_container_width=True)
+    st.plotly_chart(model_hist, width="stretch")
 
-# Relacion entre tipo, precio y modelo
-t_p = car_data.groupby(['type', 'model_year'])['price'].mean().reset_index()
 
-fig2 = px.scatter(t_p, x='model_year', y='price', color='type', title='Precio promedio por modelo y año de saldia',
-                  labels={'model_year': "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
-st.plotly_chart(fig2, use_container_width=True)
+st.header("Graficas comparativas entre las caracteristicas de los vehiculos y sus dias en las paginas.")
 
 # Grafica con las condiciones de los carros
 condition_chart = car_data.groupby('condition')['fuel'].count(
@@ -76,4 +72,41 @@ fig3 = px.pie(condition_chart, names="condition", values="cuantity", color_discr
               title="Condiciones de los carros en la pagina.",
               category_orders={"condition": ["excellent", "good", "like new", "fair", "new", "salvage"]})
 
-st.plotly_chart(fig3, use_container_width=True)
+st.plotly_chart(fig3, width="stretch")
+
+# Grafica de los carros que se venden en menos de 5 dias.
+car_data_copy = car_data.copy()  # Copia del dataframe y se hace filtrado
+car_data_copy = car_data_copy.sort_values(
+    by="days_listed").reset_index(drop=True)
+car_data_copy = car_data_copy[['model_year', 'type',
+                               'condition', 'odometer', 'days_listed']]
+
+# Carros que duren menos de 5 dias  en venderse
+days = car_data_copy[car_data_copy["days_listed"] <= 5]
+group_days = days.groupby('type')['odometer'].count().reset_index()
+fig4 = px.pie(group_days, title="Tipos de carros con mayores ventas", names='type', values='odometer',
+              color_discrete_sequence=px.colors.qualitative.Set2)
+
+st.plotly_chart(fig4, width="stretch")
+
+# Relacion entre el año de salida y la velocidad de su venta
+years = days.groupby('model_year')['type'].count().reset_index()
+print(years)
+
+# Relacion entre tipo, precio y modelo
+t_p = car_data.groupby(['type', 'model_year'])['price'].mean().reset_index()
+
+fig2 = px.scatter(t_p, x='model_year', y='price', color='type', title='Precio promedio por modelo y año de saldia',
+                  labels={'model_year': "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+st.plotly_chart(fig2, width="stretch")
+
+# Relacion entre el precio y tipo de carro de los ultimos 10 años
+less_10 = car_data[car_data['model_year'] >= 2004]
+fig5 = px.scatter(less_10, x='model_year', y='price', color='type', title='Relacion entre el precio y tipo de carro (ultimos 15 años)', labels={
+                  "model_year": "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+st.plotly_chart(fig5, width="stretch")
+
+# Relacion entre el precio-odometro y tipo de carro de los ultimos 15 años
+fig6 = px.scatter(less_10, x='odometer', y='price', color='type', title='Relacion entre el precio y tipo de carro (ultimos 15 años)', labels={
+                  "model_year": "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+st.plotly_chart(fig6, width="stretch")
