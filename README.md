@@ -24,12 +24,12 @@ Aunque se proporciona un dataset de anuncios de venta de coches, el enfoque prin
 ---
 
 ## Estructura del proyecto
-Proyect-Sprint-7/
-├── README.md 
-├── app.py 
-├── vehicles_us.csv 
-├── requirements.txt 
-└── notebooks/ 
+Proyect-Sprint-7/  
+├── README.md  
+├── app.py  
+├── vehicles_us.csv  
+├── requirements.txt  
+└── notebooks/  
 └── EDA.ipynb
 
 ---
