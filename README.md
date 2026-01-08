@@ -35,12 +35,20 @@ Proyect-Sprint-7/
 ---
 
 ## Ejecución de la aplicación
-1. Crear y activar un entorno virtual
-2. Intalar las dependencias:
+1. Clonar el repositorio
+```bash
+git clone https://github.com/Robles663/Proyect-Sprint-7.git
+```
+2. Crear y activar el entorno virtual
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+3. Intalar las dependencias:
 ```bash
 pip install -r requirements.txt
 ```
-3. Ejecurar la aplicación
+4. Ejecurar la aplicación
 ```bash
 streamlit run app.py
 ```
