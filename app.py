@@ -5,6 +5,17 @@ import plotly_express as px
 # Lectura del dataframe
 car_data = pd.read_csv("vehicles_us.csv")
 
+# Funcion para crear histogramas
+
+
+def hist_plot(tabla, x_name, titulo, labels=None):
+    kwargs = {}
+    if labels is not None:
+        kwargs['labels'] = labels
+
+    hist_fig = px.histogram(tabla, x=x_name, title=titulo, **kwargs)
+    return hist_fig
+
 # Funciones para modificar el estado
 
 
@@ -51,8 +62,9 @@ st.button("Crear histograma con respecto al año del modelo",
 if st.session_state.show_hist:
     st.write(
         "Creacion de un histograma para el conjunto de anuncios de venta de coches")
-    hist = px.histogram(car_data, x="odometer",
-                        title='Cantidad de anuncios por odometro')
+    hist = hist_plot(car_data,
+                     'odometer',
+                     'Cantidad de anuncios por odometro')
     st.plotly_chart(hist, width="stretch")
 if st.session_state.show_scatter:
     st.write("Creando grafico de dispersion")
@@ -62,8 +74,10 @@ if st.session_state.show_scatter:
 
 if st.session_state.show_model:
     st.write("Creando histograma por año del modelo")
-    model_hist = px.histogram(car_data, x="model_year",
-                              labels={"model_year": "Año"})
+    model_hist = hist_plot(car_data,
+                           'model_year',
+                           "Histograma por año de salida",
+                           {"model_year": "Año"})
     st.plotly_chart(model_hist, width="stretch")
 
 
