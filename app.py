@@ -16,6 +16,29 @@ def hist_plot(tabla, x_name, titulo, labels=None):
     hist_fig = px.histogram(tabla, x=x_name, title=titulo, **kwargs)
     return hist_fig
 
+# Funcion para crear scatter
+
+
+def scatt_plot(tabla, x, y, titulo, labels=None, color=None):
+    kwargs = {}
+    if labels is not None:
+        kwargs['labels'] = labels
+
+    scat_fig = px.scatter(tabla, x=x, y=y, title=titulo, **kwargs, color=color)
+    return scat_fig
+
+
+# Funcion para crear grafico Pie
+
+def pie_plot(tabla, names, values, titulo, category_orders=None):
+    kwargs = {}
+    if category_orders is not None:
+        kwargs['category_orders'] = category_orders
+
+    pie_fig = px.pie(tabla, color_discrete_sequence=px.colors.qualitative.Set2,
+                     names=names, values=values, title=titulo, **kwargs)
+    return pie_fig
+
 # Funciones para modificar el estado
 
 
@@ -66,10 +89,14 @@ if st.session_state.show_hist:
                      'odometer',
                      'Cantidad de anuncios por odometro')
     st.plotly_chart(hist, width="stretch")
+
 if st.session_state.show_scatter:
     st.write("Creando grafico de dispersion")
-    scatter = px.scatter(car_data, x="odometer", y="price", title='Grafica - Odometro',
-                         labels={'odometer': 'Odometro', 'price': 'Precio (USD)'})
+    scatter = scatt_plot(car_data,
+                         'odometer',
+                         'price',
+                         'Grafica - odometro',
+                         {'odometer': 'Odometro', 'price': 'Precio (USD)'})
     st.plotly_chart(scatter, width="stretch")
 
 if st.session_state.show_model:
@@ -88,9 +115,11 @@ condition_chart = car_data.groupby('condition')['fuel'].count(
 ).reset_index()  # Obtener la cantidad carros de cada condicion
 condition_chart = condition_chart.rename(columns={'fuel': 'cuantity'})
 
-fig3 = px.pie(condition_chart, names="condition", values="cuantity", color_discrete_sequence=px.colors.qualitative.Set2,
-              title="Condiciones de los carros en la pagina.",
-              category_orders={"condition": ["excellent", "good", "like new", "fair", "new", "salvage"]})
+fig3 = pie_plot(condition_chart,
+                'condition',
+                'cuantity',
+                'Condiciones de los carros en la pagina',
+                {"condition": ["excellent", "good", "like new", "fair", "new", "salvage"]})
 
 st.plotly_chart(fig3, width="stretch")
 
@@ -104,16 +133,25 @@ car_data_copy = car_data_copy[['model_year', 'type',
 # Carros que duren menos de 5 dias  en venderse
 days = car_data_copy[car_data_copy["days_listed"] <= 5]
 group_days = days.groupby('type')['odometer'].count().reset_index()
-fig4 = px.pie(group_days, title="Tipos de carros con mayores ventas", names='type', values='odometer',
-              color_discrete_sequence=px.colors.qualitative.Set2)
+
+fig4 = pie_plot(group_days,
+                'type',
+                'odometer',
+                'Tipos de carros con mayores ventas')
 
 st.plotly_chart(fig4, width="stretch")
 
 # Relacion entre tipo, precio y modelo
 t_p = car_data.groupby(['type', 'model_year'])['price'].mean().reset_index()
 
-fig2 = px.scatter(t_p, x='model_year', y='price', color='type', title='Precio promedio por modelo y año de saldia',
-                  labels={'model_year': "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+# fig2 = px.scatter(t_p, x='model_year', y='price', color='type', title='Precio promedio por modelo y año de saldia',
+#                  labels={'model_year': "Año de salida", "price": "Precio (USD)"}, color_discrete_sequence=px.colors.qualitative.Set2)
+fig2 = scatt_plot(t_p,
+                  'model_year',
+                  'price',
+                  'Precio promedio por modelo y año de saldia',
+                  {'model_year': "Año de salida", "price": "Precio (USD)"},
+                  'type')
 st.plotly_chart(fig2, width="stretch")
 
 # Relacion entre el precio y tipo de carro de los ultimos 10 años
